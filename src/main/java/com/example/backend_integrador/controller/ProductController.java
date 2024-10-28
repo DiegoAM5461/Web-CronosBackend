@@ -35,8 +35,8 @@ public class ProductController {
     }
 
     // Get a product by ID REST API
-    @GetMapping("{id_product}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable("id_product") Long productId) {
+    @GetMapping("{productId}")
+    public ResponseEntity<ProductDto> getProductById(@PathVariable("productId") Long productId) {
         ProductDto productDto = productService.getProductById(productId);
         return ResponseEntity.ok(productDto);
     }
@@ -49,16 +49,16 @@ public class ProductController {
     }
 
     // Update a product by ID REST API
-    @PutMapping("{id_product}")
-    public ResponseEntity<ProductDto> updateProduct(@PathVariable("id_product") Long productId,
+    @PutMapping("{productId}")
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable("productId") Long productId,
                                                      @RequestBody ProductDto updatedProduct){
         ProductDto productDto = productService.updateProduct(productId, updatedProduct);
         return ResponseEntity.ok(productDto);
     }
 
     // Delete a product by ID REST API
-    @DeleteMapping("{id_product}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("id_product") Long productId){
+    @DeleteMapping("{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable("productId") Long productId){
         productService.deleteProduct(productId);
         return ResponseEntity.ok("Producto eliminado correctamente");
     }
