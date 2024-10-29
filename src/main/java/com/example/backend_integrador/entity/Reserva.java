@@ -1,17 +1,12 @@
 package com.example.backend_integrador.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,21 +15,22 @@ import lombok.Setter;
 @Entity
 @Table(name = "reserva")
 public class Reserva {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reservaId")
+    @Column(name = "reservaId", nullable = false)
     private Long reservaId;
 
-    @Column(name = "fechaReserva")
+    @Column(name = "fechaReserva", nullable = false)
     private String fechaReserva;
 
-    @Column(name = "horaInicio")
+    @Column(name = "horaInicio", nullable = false)
     private String horaInicio;
 
-    @Column(name = "horaFin")
+    @Column(name = "horaFin", nullable = false)
     private String horaFin;
 
-    @Column(name = "estadoReserva")
+    @Column(name = "estadoReserva", nullable = false)
     private String estadoReserva;
 
     @ManyToOne
@@ -45,6 +41,6 @@ public class Reserva {
     @JoinColumn(name = "boxId", nullable = false)
     private BoxCronos box;
 
-    @Column(name = "disponibilidad")
-    private String disponibilidad; // Nueva columna para almacenar el estado de la disponibilidad del box
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
+    private List<HistorialReservas> historialReservas;
 }
