@@ -8,8 +8,7 @@ public class BoxCronosMapper {
         return new BoxCronosDto(
             boxCronos.getBoxId(),
             boxCronos.getBoxNumero(),
-            boxCronos.getBoxCapacidad(),
-            boxCronos.getBoxEstado()
+            boxCronos.getBoxCapacidad()
         );
     }
 
@@ -17,8 +16,7 @@ public class BoxCronosMapper {
         return new BoxCronos(
             boxCronosDto.getBoxId(),
             boxCronosDto.getBoxNumero(),
-            boxCronosDto.getBoxCapacidad(),
-            boxCronosDto.getBoxEstado()
+            boxCronosDto.getBoxCapacidad()
         );
     }
 }

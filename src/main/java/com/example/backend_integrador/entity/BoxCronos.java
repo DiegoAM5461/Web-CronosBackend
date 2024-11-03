@@ -1,5 +1,6 @@
 package com.example.backend_integrador.entity;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,6 +30,4 @@ public class BoxCronos {
     @Column(name = "boxCapacidad")
     private Integer boxCapacidad;
 
-    @Column(name = "boxEstado")
-    private String boxEstado;  //valores: "1", "2", "3"
 }

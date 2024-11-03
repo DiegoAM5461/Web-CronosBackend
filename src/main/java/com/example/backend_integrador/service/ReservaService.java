@@ -1,10 +1,11 @@
 package com.example.backend_integrador.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import com.example.backend_integrador.dto.ReservaDto;
 
 public interface ReservaService {
-    
+
     ReservaDto createReserva(ReservaDto reservaDto);
 
     ReservaDto getReservaById(Long reservaId);
@@ -14,4 +15,7 @@ public interface ReservaService {
     ReservaDto updateReserva(Long reservaId, ReservaDto updatedReserva);
 
     void deleteReserva(Long reservaId);
+
+    List<ReservaDto> getAvailableReservationsForDate(LocalDate fechaReserva);
+
 }

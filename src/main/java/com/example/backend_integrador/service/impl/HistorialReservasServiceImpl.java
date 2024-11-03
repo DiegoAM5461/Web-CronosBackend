@@ -4,6 +4,7 @@ import com.example.backend_integrador.dto.HistorialReservasDto;
 import com.example.backend_integrador.entity.Client;
 import com.example.backend_integrador.entity.HistorialReservas;
 import com.example.backend_integrador.entity.Reserva;
+import com.example.backend_integrador.enums.ReservaEstado;
 import com.example.backend_integrador.exceptions.ResourceNotFoundException;
 import com.example.backend_integrador.mapper.HistorialReservasMapper;
 import com.example.backend_integrador.repository.ClientRepository;
@@ -27,39 +28,45 @@ public class HistorialReservasServiceImpl implements HistorialReservasService {
 
     @Override
     public HistorialReservasDto createHistorialReservas(HistorialReservasDto historialReservasDto) {
-        // Buscar la reserva
-        Reserva reserva = reservaRepository.findById(historialReservasDto.getReservaId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "La reserva con id: " + historialReservasDto.getReservaId() + " no existe"));
-
-        // Buscar el cliente
-        Client client = clientRepository.findById(historialReservasDto.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "El cliente con id: " + historialReservasDto.getClientId() + " no existe"));
-
-        // Obtener el estado final de la reserva para el historial
+        Reserva reserva = buscarReserva(historialReservasDto.getReservaId());
+        Client client = buscarCliente(historialReservasDto.getClientId());
         String estadoFinal = obtenerEstadoFinalDeReserva(reserva.getEstadoReserva());
 
-        // Crear el historial con la reserva y cliente ya encontrados
+        HistorialReservas historialReservas = construirHistorialReservas(reserva, client, estadoFinal);
+        HistorialReservas savedHistorial = historialReservasRepository.save(historialReservas);
+
+        return HistorialReservasMapper.mapToHistorialReservasDto(savedHistorial);
+    }
+
+    private Reserva buscarReserva(Long reservaId) {
+        return reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "La reserva con id: " + reservaId + " no existe"));
+    }
+
+    private Client buscarCliente(Long clientId) {
+        return clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "El cliente con id: " + clientId + " no existe"));
+    }
+
+    private HistorialReservas construirHistorialReservas(Reserva reserva, Client client, String estadoFinal) {
         HistorialReservas historialReservas = new HistorialReservas();
         historialReservas.setFechaCambio(LocalDate.now());
         historialReservas.setEstadoFinal(estadoFinal);
         historialReservas.setReserva(reserva);
         historialReservas.setClient(client);
-
-        // Guardar y retornar el historial
-        HistorialReservas savedHistorial = historialReservasRepository.save(historialReservas);
-        return HistorialReservasMapper.mapToHistorialReservasDto(savedHistorial);
+        return historialReservas;
     }
 
-    private String obtenerEstadoFinalDeReserva(String estadoReserva) {
+    private String obtenerEstadoFinalDeReserva(ReservaEstado estadoReserva) {
         switch (estadoReserva) {
-            case "1":
+            case PENDIENTE:
                 return "Pendiente";
-            case "2":
-                return "Confirmado";
-            case "3":
-                return "Cancelado";
+            case CONFIRMADA:
+                return "Confirmada";
+            case CANCELADA:
+                return "Cancelada";
             default:
                 throw new IllegalStateException("Estado de reserva no reconocido: " + estadoReserva);
         }
@@ -68,14 +75,16 @@ public class HistorialReservasServiceImpl implements HistorialReservasService {
     @Override
     public HistorialReservasDto getHistorialReservasById(Long historialId) {
         HistorialReservas historialReservas = historialReservasRepository.findById(historialId)
-                .orElseThrow(() -> new ResourceNotFoundException("El historial con id: " + historialId + " no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "El historial con id: " + historialId + " no existe"));
         return HistorialReservasMapper.mapToHistorialReservasDto(historialReservas);
     }
 
     @Override
     public List<HistorialReservasDto> getAllHistorialReservas() {
-        List<HistorialReservas> historiales = historialReservasRepository.findAll();
-        return historiales.stream().map(HistorialReservasMapper::mapToHistorialReservasDto)
+        List<HistorialReservas> historialReservasList = historialReservasRepository.findAll();
+        return historialReservasList.stream()
+                .map(HistorialReservasMapper::mapToHistorialReservasDto)
                 .collect(Collectors.toList());
     }
 }

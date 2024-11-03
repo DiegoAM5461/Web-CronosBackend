@@ -1,5 +1,6 @@
 package com.example.backend_integrador.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,5 +14,4 @@ public class BoxCronosDto {
     private Long boxId;
     private String boxNumero;
     private Integer boxCapacidad;
-    private String boxEstado;
 }

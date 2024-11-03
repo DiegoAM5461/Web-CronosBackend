@@ -6,7 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+
+import com.example.backend_integrador.enums.ReservaEstado;
 
 @Getter
 @Setter
@@ -22,16 +26,17 @@ public class Reserva {
     private Long reservaId;
 
     @Column(name = "fechaReserva", nullable = false)
-    private String fechaReserva;
+    private LocalDate fechaReserva;
 
     @Column(name = "horaInicio", nullable = false)
-    private String horaInicio;
+    private LocalTime horaInicio;
 
     @Column(name = "horaFin", nullable = false)
-    private String horaFin;
+    private LocalTime horaFin;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "estadoReserva", nullable = false)
-    private String estadoReserva;
+    private ReservaEstado estadoReserva;
 
     @ManyToOne
     @JoinColumn(name = "clientId", nullable = false)

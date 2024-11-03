@@ -1,160 +1,141 @@
 package com.example.backend_integrador.service.impl;
 
 import com.example.backend_integrador.dto.ReservaDto;
-import com.example.backend_integrador.entity.Reserva;
-import com.example.backend_integrador.entity.Client;
 import com.example.backend_integrador.entity.BoxCronos;
-import com.example.backend_integrador.entity.HistorialReservas;
+import com.example.backend_integrador.entity.Client;
+import com.example.backend_integrador.entity.Reserva;
+import com.example.backend_integrador.enums.ReservaEstado;
 import com.example.backend_integrador.exceptions.ResourceNotFoundException;
-import com.example.backend_integrador.repository.ReservaRepository;
-import com.example.backend_integrador.repository.HistorialReservasRepository;
-import com.example.backend_integrador.repository.ClientRepository;
-import com.example.backend_integrador.repository.BoxCronosRepository;
-import com.example.backend_integrador.service.ReservaService;
 import com.example.backend_integrador.mapper.ReservaMapper;
+import com.example.backend_integrador.repository.BoxCronosRepository;
+import com.example.backend_integrador.repository.ClientRepository;
+import com.example.backend_integrador.repository.ReservaRepository;
+import com.example.backend_integrador.service.ReservaService;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ReservaServiceImpl implements ReservaService {
 
     private final ReservaRepository reservaRepository;
-    private final HistorialReservasRepository historialReservasRepository;
     private final ClientRepository clientRepository;
     private final BoxCronosRepository boxCronosRepository;
 
+    private static final LocalTime HORARIO_INICIO = LocalTime.of(22, 0); // 10 PM
+    private static final LocalTime HORARIO_FIN = LocalTime.of(3, 0); // 3 AM del día siguiente
+
     @Override
+    @Transactional
     public ReservaDto createReserva(ReservaDto reservaDto) {
-        // Verificar si el cliente ya existe o crear uno nuevo
-        Client client = clientRepository.findById(reservaDto.getClientId()).orElseGet(() -> {
-            // Crear un nuevo cliente si no existe
-            Client newClient = new Client();
-            newClient.setClientId(reservaDto.getClientId());
-            newClient.setPrimerNombre(reservaDto.getPrimerNombre());
-            newClient.setPrimerApellido(reservaDto.getPrimerApellido());
-            newClient.setEmail(reservaDto.getEmail());
-            newClient.setTelefono(reservaDto.getTelefono());
-            // Guardar el nuevo cliente
-            return clientRepository.save(newClient);
-        });
+        reservaDto.setHoraInicio(HORARIO_INICIO);
+        reservaDto.setHoraFin(HORARIO_FIN);
 
-        // Buscar el box para la reserva
-        BoxCronos box = boxCronosRepository.findById(reservaDto.getBoxId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("Box con id: " + reservaDto.getBoxId() + " no encontrado"));
-
-        // Verificar disponibilidad del box
-        if (box.getBoxEstado().equals("1") || box.getBoxEstado().equals("2")) {
-            throw new IllegalStateException(
-                    "El box no está disponible para reservar. Estado actual: " + box.getBoxEstado());
+        // Verificar si el box está disponible en la fecha solicitada
+        List<Reserva> reservasExistentes = reservaRepository.findByBoxBoxIdAndFechaReserva(reservaDto.getBoxId(),
+                reservaDto.getFechaReserva());
+        if (!reservasExistentes.isEmpty()) {
+            throw new IllegalStateException("El box no está disponible en la fecha solicitada.");
         }
 
-        // Cambiar el estado del box a "1" (reservado)
-        box.setBoxEstado("1");
-        boxCronosRepository.save(box);
+        // Buscar el cliente por correo electrónico
+        Client client = clientRepository.findByEmail(reservaDto.getEmail()).orElse(null);
 
-        // Crear una nueva reserva a partir del DTO
-        Reserva reserva = new Reserva();
-        reserva.setFechaReserva(reservaDto.getFechaReserva());
-        reserva.setHoraInicio(reservaDto.getHoraInicio());
-        reserva.setHoraFin(reservaDto.getHoraFin());
-        reserva.setEstadoReserva("pendiente");
-        reserva.setClient(client);
-        reserva.setBox(box);
+        // Si el cliente no existe, crear uno nuevo
+        if (client == null) {
+            if (reservaDto.getPrimerNombre() == null || reservaDto.getPrimerApellido() == null
+                    || reservaDto.getEmail() == null || reservaDto.getTelefono() == null) {
+                throw new IllegalArgumentException(
+                        "Para crear un cliente nuevo, se requieren todos los datos: nombre, apellido, email y teléfono.");
+            }
 
+            client = new Client();
+            client.setClientId(reservaDto.getClientId()); // Opcional si no es único
+            client.setPrimerNombre(reservaDto.getPrimerNombre());
+            client.setPrimerApellido(reservaDto.getPrimerApellido());
+            client.setEmail(reservaDto.getEmail());
+            client.setTelefono(reservaDto.getTelefono());
+
+            client = clientRepository.save(client);
+        }
+
+        // Obtener el box correspondiente
+        BoxCronos box = boxCronosRepository.findById(reservaDto.getBoxId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "El box con el id_box: " + reservaDto.getBoxId() + " no existe"));
+
+        // Crear la reserva y asignar cliente y box
+        Reserva reserva = ReservaMapper.mapToReserva(reservaDto, client, box);
+        reserva.setEstadoReserva(ReservaEstado.PENDIENTE);
+
+        // Guardar la reserva
         Reserva savedReserva = reservaRepository.save(reserva);
-
-        // Crear historial para la nueva reserva
-        HistorialReservas historial = new HistorialReservas();
-        historial.setReserva(savedReserva);
-        historial.setClient(client);
-        historial.setFechaCambio(LocalDate.now());
-        historial.setEstadoFinal(obtenerEstadoFinalDeReserva(savedReserva.getEstadoReserva()));
-
-        historialReservasRepository.save(historial);
-
-        // Retornar la reserva guardada como DTO
         return ReservaMapper.mapToReservaDto(savedReserva);
     }
 
     @Override
-public ReservaDto updateReserva(Long reservaId, ReservaDto reservaDto) {
-    // Buscar la reserva
-    Reserva reserva = reservaRepository.findById(reservaId)
-            .orElseThrow(() -> new ResourceNotFoundException("Reserva con id: " + reservaId + " no encontrada"));
-
-    // Verificar si el estado cambió para crear un historial
-    boolean estadoCambio = !reserva.getEstadoReserva().equals(reservaDto.getEstadoReserva());
-    
-    // Actualizar los campos de la reserva
-    reserva.setEstadoReserva(reservaDto.getEstadoReserva());
-    reserva.setHoraInicio(reservaDto.getHoraInicio());
-    reserva.setHoraFin(reservaDto.getHoraFin());
-    reserva.setFechaReserva(reservaDto.getFechaReserva());
-
-    // Guardar la reserva actualizada
-    Reserva updatedReserva = reservaRepository.save(reserva);
-
-    // Si el estado cambió, actualizar el estado del box
-    if (estadoCambio) {
-        BoxCronos box = updatedReserva.getBox();
-        if (reservaDto.getEstadoReserva().equals("confirmado")) {
-            box.setBoxEstado("2"); // Estado "2" = Ocupado
-        } else if (reservaDto.getEstadoReserva().equals("cancelado")) {
-            box.setBoxEstado("3"); // Estado "3" = Disponible
-        }
-        boxCronosRepository.save(box);
-
-        // Crear un nuevo historial
-        HistorialReservas historial = new HistorialReservas();
-        historial.setReserva(updatedReserva);
-        historial.setClient(updatedReserva.getClient()); // Asociar el cliente que hizo la reserva
-        historial.setFechaCambio(LocalDate.now()); // Fecha actual para el cambio
-        historial.setEstadoFinal(obtenerEstadoFinalDeReserva(reservaDto.getEstadoReserva()));
-
-        historialReservasRepository.save(historial);
-    }
-
-    // Retornar el DTO de la reserva actualizada
-    return ReservaMapper.mapToReservaDto(updatedReserva);
-}
-
-
-    @Override
     public ReservaDto getReservaById(Long reservaId) {
         Reserva reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva con id: " + reservaId + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("La reserva con el id: " + reservaId + " no existe"));
         return ReservaMapper.mapToReservaDto(reserva);
     }
 
     @Override
     public List<ReservaDto> getAllReservas() {
         List<Reserva> reservas = reservaRepository.findAll();
-        return reservas.stream().map(ReservaMapper::mapToReservaDto).collect(Collectors.toList());
+        return reservas.stream().map(ReservaMapper::mapToReservaDto).toList();
     }
 
     @Override
+    @Transactional
+    public ReservaDto updateReserva(Long reservaId, ReservaDto updatedReserva) {
+        Reserva reserva = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new ResourceNotFoundException("La reserva con el id: " + reservaId + " no existe"));
+
+        reserva.setFechaReserva(updatedReserva.getFechaReserva());
+        reserva.setHoraInicio(HORARIO_INICIO);
+        reserva.setHoraFin(HORARIO_FIN);
+        reserva.setEstadoReserva(updatedReserva.getEstadoReserva());
+
+        Reserva updatedEntity = reservaRepository.save(reserva);
+        return ReservaMapper.mapToReservaDto(updatedEntity);
+    }
+
+    @Override
+    @Transactional
     public void deleteReserva(Long reservaId) {
         Reserva reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva con id: " + reservaId + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("La reserva con el id: " + reservaId + " no existe"));
+
         reservaRepository.delete(reserva);
     }
 
-    private String obtenerEstadoFinalDeReserva(String estadoReserva) {
-        switch (estadoReserva) {
-            case "pendiente":
-                return "1";
-            case "confirmado":
-                return "2";
-            case "cancelado":
-                return "3";
-            default:
-                throw new IllegalStateException("Estado de reserva no reconocido: " + estadoReserva);
-        }
+    // Implementación del método getAvailableReservationsForDate de la interfaz
+    // ReservaService
+    @Override
+    public List<ReservaDto> getAvailableReservationsForDate(LocalDate fechaReserva) {
+        List<BoxCronos> allBoxes = boxCronosRepository.findAll();
+
+        // Buscar solo reservas activas en la fecha dada
+        List<Reserva> reservas = reservaRepository.findByFechaReservaAndEstadoReservaNot(fechaReserva,
+                ReservaEstado.CANCELADA);
+
+        List<BoxCronos> availableBoxes = allBoxes.stream()
+                .filter(box -> reservas.stream()
+                        .noneMatch(reserva -> reserva.getBox().getBoxId().equals(box.getBoxId())))
+                .toList();
+
+        // Crear ReservaDto solo con detalles necesarios
+        return availableBoxes.stream()
+                .map(box -> new ReservaDto(null, fechaReserva, null, null, null, null,
+                        box.getBoxId(), null, null, null, null, box.getBoxCapacidad()))
+                .toList();
     }
+
 }

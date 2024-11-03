@@ -8,7 +8,6 @@ public class ClientMapper {
         return new ClientDto(
             client.getClientId(),
             client.getPrimerNombre(),
-            client.getPreNombre(),
             client.getPrimerApellido(),
             client.getSegundoApellido(),
             client.getEmail(),
@@ -20,7 +19,6 @@ public class ClientMapper {
         return new Client(
             clientDto.getClientId(),
             clientDto.getPrimerNombre(),
-            clientDto.getPreNombre(),
             clientDto.getPrimerApellido(),
             clientDto.getSegundoApellido(),
             clientDto.getEmail(),

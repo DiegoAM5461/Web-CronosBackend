@@ -52,7 +52,6 @@ public class ClientServiceImpl implements ClientService {
 
         // Actualizar los atributos del cliente
         client.setPrimerNombre(updatedClient.getPrimerNombre());
-        client.setPreNombre(updatedClient.getPreNombre());
         client.setPrimerApellido(updatedClient.getPrimerApellido());
         client.setSegundoApellido(updatedClient.getSegundoApellido());
         client.setEmail(updatedClient.getEmail());

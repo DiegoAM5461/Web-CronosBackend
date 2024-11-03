@@ -1,7 +1,9 @@
 package com.example.backend_integrador.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend_integrador.dto.ReservaDto;
@@ -26,7 +29,7 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/api/reservas")
 public class ReservaController {
 
-    private ReservaService reservaService;
+    private final ReservaService reservaService;
 
     // Create a new reserva REST API
     @PostMapping
@@ -48,7 +51,7 @@ public class ReservaController {
 
     // Get all reservas REST API
     @GetMapping
-    public ResponseEntity<List<ReservaDto>> getAllReservas(){
+    public ResponseEntity<List<ReservaDto>> getAllReservas() {
         List<ReservaDto> reservas = reservaService.getAllReservas();
         return ResponseEntity.ok(reservas);
     }
@@ -56,15 +59,22 @@ public class ReservaController {
     // Update a reserva by ID REST API
     @PutMapping("{reservaId}")
     public ResponseEntity<ReservaDto> updateReserva(@PathVariable("reservaId") Long reservaId,
-                                                     @RequestBody ReservaDto updatedReserva){
+            @RequestBody ReservaDto updatedReserva) {
         ReservaDto reservaDto = reservaService.updateReserva(reservaId, updatedReserva);
         return ResponseEntity.ok(reservaDto);
     }
 
     // Delete a reserva by ID REST API
     @DeleteMapping("{reservaId}")
-    public ResponseEntity<String> deleteReserva(@PathVariable("reservaId") Long reservaId){
+    public ResponseEntity<String> deleteReserva(@PathVariable("reservaId") Long reservaId) {
         reservaService.deleteReserva(reservaId);
         return ResponseEntity.ok("Reserva eliminada correctamente");
     }
+
+    @GetMapping("/disponibles")
+    public List<ReservaDto> getAvailableReservations(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaReserva) {
+        return reservaService.getAvailableReservationsForDate(fechaReserva);
+    }
+
 }

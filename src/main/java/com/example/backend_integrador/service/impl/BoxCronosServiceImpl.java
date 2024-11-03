@@ -54,7 +54,6 @@ public class BoxCronosServiceImpl implements BoxCronosService {
         // Actualizar los atributos del boxCronos
         boxCronos.setBoxNumero(updatedBoxCronos.getBoxNumero());
         boxCronos.setBoxCapacidad(updatedBoxCronos.getBoxCapacidad());
-        boxCronos.setBoxEstado(updatedBoxCronos.getBoxEstado());
 
         BoxCronos updatedBoxCronosObj = boxCronosRepository.save(boxCronos);
         return BoxCronosMapper.mapToBoxCronosDto(updatedBoxCronosObj);

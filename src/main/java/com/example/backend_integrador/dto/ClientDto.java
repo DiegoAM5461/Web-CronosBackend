@@ -12,7 +12,6 @@ import lombok.Setter;
 public class ClientDto {
     private Long clientId;
     private String primerNombre;
-    private String preNombre;
     private String primerApellido;
     private String segundoApellido;
     private String email;

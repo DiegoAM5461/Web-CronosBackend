@@ -23,9 +23,6 @@ public class Client {
     @Column(name = "primerNombre", nullable = true)
     private String primerNombre;
 
-    @Column(name = "preNombre", nullable = true)
-    private String preNombre;
-
     @Column(name = "primerApellido", nullable = true)
     private String primerApellido;
 
