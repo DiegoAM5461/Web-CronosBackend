@@ -38,6 +38,7 @@ public class ReservaServiceImpl implements ReservaService {
         @Override
         @Transactional
         public ReservaDto createReserva(ReservaDto reservaDto) {
+                // Asignar la hora de inicio y fin predeterminada
                 reservaDto.setHoraInicio(HORARIO_INICIO);
                 reservaDto.setHoraFin(HORARIO_FIN);
 
@@ -45,7 +46,12 @@ public class ReservaServiceImpl implements ReservaService {
                 List<Reserva> reservasExistentes = reservaRepository.findByBoxBoxIdAndFechaReserva(
                                 reservaDto.getBoxId(),
                                 reservaDto.getFechaReserva());
-                if (!reservasExistentes.isEmpty()) {
+
+                // Comprobar si alguna reserva existente en esa fecha no está cancelada
+                boolean reservaActivaExistente = reservasExistentes.stream()
+                                .anyMatch(r -> r.getEstadoReserva() != ReservaEstado.CANCELADA);
+
+                if (reservaActivaExistente) {
                         throw new IllegalStateException("El box no está disponible en la fecha solicitada.");
                 }
 
@@ -66,7 +72,7 @@ public class ReservaServiceImpl implements ReservaService {
                         client.setEmail(reservaDto.getEmail());
                         client.setTelefono(reservaDto.getTelefono());
 
-                        client = clientRepository.save(client); // Asegúrate de que el cliente se guarda primero
+                        client = clientRepository.save(client); // Guardar el cliente
                 }
 
                 // Obtener el box correspondiente
@@ -78,12 +84,13 @@ public class ReservaServiceImpl implements ReservaService {
                 Reserva reserva = ReservaMapper.mapToReserva(reservaDto, client, box);
                 reserva.setEstadoReserva(ReservaEstado.PENDIENTE);
 
-                // Guardar la reserva
+                // Guardar la reserva en la base de datos
                 Reserva savedReserva = reservaRepository.save(reserva);
 
                 // Registrar el cambio inicial en el historial
                 registrarCambioHistorial(savedReserva, ReservaEstado.PENDIENTE);
 
+                // Retornar la reserva en formato DTO
                 return ReservaMapper.mapToReservaDto(savedReserva);
         }
 
@@ -128,9 +135,11 @@ public class ReservaServiceImpl implements ReservaService {
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "La reserva con el id: " + reservaId + " no existe"));
 
-                reservaRepository.delete(reserva);
+                // Cambia el estado a CANCELADA en lugar de eliminar
+                reserva.setEstadoReserva(ReservaEstado.CANCELADA);
+                reservaRepository.save(reserva);
 
-                // Registrar la eliminación en el historial con estado CANCELADA
+                // Registrar el cambio en el historial con estado CANCELADA
                 registrarCambioHistorial(reserva, ReservaEstado.CANCELADA);
         }
 
@@ -141,13 +150,12 @@ public class ReservaServiceImpl implements ReservaService {
                 historial.setFechaCambio(LocalDate.now());
                 historial.setHoraCambio(LocalTime.now());
                 historial.setReserva(reserva);
-            
+
                 // Agrega el clientId desde la entidad reserva
                 historial.setClientId(reserva.getClient().getClientId());
-            
+
                 historialReservasRepository.save(historial);
-            }
-            
+        }
 
         // Tarea programada para actualizar el estado de las reservas a TERMINADA a las
         // 3:00 AM
@@ -169,12 +177,14 @@ public class ReservaServiceImpl implements ReservaService {
         public List<ReservaDto> getAvailableReservationsForDate(LocalDate fechaReserva) {
                 List<BoxCronos> allBoxes = boxCronosRepository.findAll();
 
-                // Buscar solo reservas activas en la fecha dada
-                List<Reserva> reservas = reservaRepository.findByFechaReservaAndEstadoReservaNot(fechaReserva,
+                // Obtener reservas activas para la fecha dada (excluyendo las CANCELADA)
+                List<Reserva> reservasActivas = reservaRepository.findByFechaReservaAndEstadoReservaNot(fechaReserva,
                                 ReservaEstado.CANCELADA);
 
+                // Filtrar boxes disponibles excluyendo los que ya están reservados en la fecha
+                // dada
                 List<BoxCronos> availableBoxes = allBoxes.stream()
-                                .filter(box -> reservas.stream()
+                                .filter(box -> reservasActivas.stream()
                                                 .noneMatch(reserva -> reserva.getBox().getBoxId()
                                                                 .equals(box.getBoxId())))
                                 .toList();
