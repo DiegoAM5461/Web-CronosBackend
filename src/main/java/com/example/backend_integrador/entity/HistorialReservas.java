@@ -1,19 +1,25 @@
 package com.example.backend_integrador.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+
+import com.example.backend_integrador.enums.ReservaEstado;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Getter
 @Setter
@@ -31,16 +37,19 @@ public class HistorialReservas {
     @Column(name = "fechaCambio", nullable = false)
     private LocalDate fechaCambio;
 
+    @Column(name = "horaCambio", nullable = false)
+    private LocalTime horaCambio;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "estadoFinal", nullable = false)
-    private String estadoFinal;
+    private ReservaEstado estadoFinal;
 
     // Relación con Reserva (FK)
     @ManyToOne
-    @JoinColumn(name = "reservaId", nullable = false)
+    @JoinColumn(name = "reserva_id", nullable = false)
     private Reserva reserva;
 
-    // Relación con Client para obtener el cliente que hizo el cambio
-    @ManyToOne
-    @JoinColumn(name = "clientId", nullable = false)
-    private Client client;
+    // Nuevo campo para clientId
+    @Column(name = "client_id", nullable = true)  // Ajusta `nullable` según tus necesidades
+    private Long clientId;
 }
