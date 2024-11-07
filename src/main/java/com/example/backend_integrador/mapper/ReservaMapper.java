@@ -18,6 +18,7 @@ public class ReservaMapper {
         reservaDto.setPrimerApellido(reserva.getClient().getPrimerApellido());
         reservaDto.setEmail(reserva.getClient().getEmail());
         reservaDto.setTelefono(reserva.getClient().getTelefono());
+        reservaDto.setBoxCapacidad(reserva.getBox().getBoxCapacidad());
         return reservaDto;
     }
 

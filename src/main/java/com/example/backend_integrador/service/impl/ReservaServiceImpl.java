@@ -98,7 +98,9 @@ public class ReservaServiceImpl implements ReservaService {
         public ReservaDto getReservaById(Long reservaId) {
                 Reserva reserva = reservaRepository.findById(reservaId)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "La reserva con el id: " + reservaId + " no existe"));
+                                                "Reserva no encontrada con id: " + reservaId));
+
+                // Usar el mapper para convertir la entidad en DTO
                 return ReservaMapper.mapToReservaDto(reserva);
         }
 
