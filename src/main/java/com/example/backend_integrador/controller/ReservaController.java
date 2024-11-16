@@ -23,13 +23,13 @@ import com.example.backend_integrador.exceptions.ResourceNotFoundException;
 
 import lombok.AllArgsConstructor;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/reservas")
 public class ReservaController {
 
-    private final ReservaService reservaService;
+    private ReservaService reservaService;
 
     // Create a new reserva REST API
     @PostMapping
@@ -43,7 +43,7 @@ public class ReservaController {
     }
 
     // Get a reserva by ID REST API
-    @GetMapping("{reservaId}")
+    @GetMapping("/{reservaId}")
     public ResponseEntity<ReservaDto> getReservaById(@PathVariable("reservaId") Long reservaId) {
         ReservaDto reservaDto = reservaService.getReservaById(reservaId);
         return ResponseEntity.ok(reservaDto);
@@ -52,12 +52,12 @@ public class ReservaController {
     // Get all reservas REST API
     @GetMapping
     public ResponseEntity<List<ReservaDto>> getAllReservas() {
-        List<ReservaDto> reservas = reservaService.getAllReservas();
+        List<ReservaDto> reservas = reservaService.getAllReservas(); // Cambiado a List<ReservaDto>
         return ResponseEntity.ok(reservas);
     }
 
     // Update a reserva by ID REST API
-    @PutMapping("{reservaId}")
+    @PutMapping("/{reservaId}")
     public ResponseEntity<ReservaDto> updateReserva(@PathVariable("reservaId") Long reservaId,
             @RequestBody ReservaDto updatedReserva) {
         ReservaDto reservaDto = reservaService.updateReserva(reservaId, updatedReserva);
@@ -65,7 +65,7 @@ public class ReservaController {
     }
 
     // Delete a reserva by ID REST API
-    @DeleteMapping("{reservaId}")
+    @DeleteMapping("/{reservaId}")
     public ResponseEntity<String> deleteReserva(@PathVariable("reservaId") Long reservaId) {
         reservaService.deleteReserva(reservaId);
         return ResponseEntity.ok("Reserva eliminada correctamente");

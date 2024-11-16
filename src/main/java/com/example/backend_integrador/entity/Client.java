@@ -18,7 +18,7 @@ import lombok.Setter;
 public class Client {
     //No se esta generando automaticamente el DNI o ID del cliente
     @Id
-    @Column(name = "clientId", nullable = false)
+    @Column(name = "clientId", nullable = true)
     private Long clientId;
 
     @Column(name = "primerNombre", nullable = true)

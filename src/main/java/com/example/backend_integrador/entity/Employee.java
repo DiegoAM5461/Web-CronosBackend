@@ -1,18 +1,11 @@
 package com.example.backend_integrador.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.LocalDate;
-
 import com.example.backend_integrador.enums.EmployeeEstado;
 
 @Getter
@@ -22,9 +15,9 @@ import com.example.backend_integrador.enums.EmployeeEstado;
 @Entity
 @Table(name = "employee")
 public class Employee {
-    
+
     @Id
-    @Column(name = "employee_id")
+    @Column(name = "employee_id", nullable = false)    // Clave primaria en la base de datos
     private Long employeeId;
 
     @Column(name = "nombre", nullable = false)

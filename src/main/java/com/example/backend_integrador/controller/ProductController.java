@@ -14,12 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend_integrador.dto.CategoryWithProductsDto;
 import com.example.backend_integrador.dto.ProductDto;
 import com.example.backend_integrador.service.ProductService;
 
 import lombok.AllArgsConstructor;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/products")
@@ -35,7 +36,7 @@ public class ProductController {
     }
 
     // Get a product by ID REST API
-    @GetMapping("{productId}")
+    @GetMapping("/{productId}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("productId") Long productId) {
         ProductDto productDto = productService.getProductById(productId);
         return ResponseEntity.ok(productDto);
@@ -43,23 +44,29 @@ public class ProductController {
 
     // Get all products REST API
     @GetMapping
-    public ResponseEntity<List<ProductDto>> getAllProducts(){
+    public ResponseEntity<List<ProductDto>> getAllProducts() {
         List<ProductDto> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
 
     // Update a product by ID REST API
-    @PutMapping("{productId}")
+    @PutMapping("/{productId}")
     public ResponseEntity<ProductDto> updateProduct(@PathVariable("productId") Long productId,
-                                                     @RequestBody ProductDto updatedProduct){
+            @RequestBody ProductDto updatedProduct) {
         ProductDto productDto = productService.updateProduct(productId, updatedProduct);
         return ResponseEntity.ok(productDto);
     }
 
     // Delete a product by ID REST API
-    @DeleteMapping("{productId}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("productId") Long productId){
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable("productId") Long productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.ok("Producto eliminado correctamente");
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<CategoryWithProductsDto> getProductsByCategoryId(@PathVariable Long categoryId) {
+        CategoryWithProductsDto categoryWithProducts = productService.findProductsByCategoryId(categoryId);
+        return ResponseEntity.ok(categoryWithProducts);
     }
 }

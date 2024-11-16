@@ -1,5 +1,6 @@
 package com.example.backend_integrador.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,9 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDto {
-    private Long categoryId;
+public class CategoryWithProductsDto {
     private String nombreCategory;
-    
-    private String descripcionCategory;
+    private List<ProductDto> products;
 }

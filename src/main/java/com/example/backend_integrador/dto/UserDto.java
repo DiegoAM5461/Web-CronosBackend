@@ -18,4 +18,5 @@ public class UserDto {
     private String password;
     private UserEstado userEstado;
     private UserRol userRol;
+    private Long employeeId; // Agrega este campo para recibir el ID del empleado
 }

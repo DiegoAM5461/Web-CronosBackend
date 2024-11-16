@@ -28,7 +28,7 @@ public class Category {
     @Column(name = "nombreCategory")
     private String nombreCategory;
 
-    @Column(name = "descripcionCategory")   
+    @Column(name = "descripcionCategory", nullable = true)   
     private String descripcionCategory;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)

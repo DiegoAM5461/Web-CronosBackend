@@ -19,7 +19,7 @@ import com.example.backend_integrador.service.ClientService;
 
 import lombok.AllArgsConstructor;
 
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:3000")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/clients")
@@ -35,9 +35,9 @@ public class ClientController {
     }
 
     // Get a client by ID REST API
-    @GetMapping("{clientId}")
+    @GetMapping("/{clientId}")
     public ResponseEntity<ClientDto> getClientById(@PathVariable("clientId") Long clientId) {
-        ClientDto clientDto = clientService.getClientById(clientId);
+        ClientDto clientDto = clientService.getClientById(clientId); // Lanza 404 si no encuentra el cliente
         return ResponseEntity.ok(clientDto);
     }
 
@@ -49,14 +49,14 @@ public class ClientController {
     }
 
     // Update a client by ID REST API
-    @PutMapping("{clientId}")
+    @PutMapping("/{clientId}")
     public ResponseEntity<ClientDto> updateClient(@PathVariable("clientId") Long clientId,
             @RequestBody ClientDto updatedClient) {
         ClientDto clientDto = clientService.updateClient(clientId, updatedClient);
         return ResponseEntity.ok(clientDto);
     }
 
-    @PutMapping("{currentClientId}/updateId/{newClientId}")
+    @PutMapping("/{currentClientId}/updateId/{newClientId}")
     public ResponseEntity<ClientDto> updateClientId(@PathVariable("currentClientId") Long currentClientId,
             @PathVariable("newClientId") Long newClientId) {
         ClientDto clientDto = clientService.updateClientId(currentClientId, newClientId);
@@ -64,7 +64,7 @@ public class ClientController {
     }
 
     // Delete a client by ID REST API
-    @DeleteMapping("{clientId}")
+    @DeleteMapping("/{clientId}")
     public ResponseEntity<String> deleteClient(@PathVariable("clientId") Long clientId) {
         clientService.deleteClient(clientId);
         return ResponseEntity.ok("Cliente eliminado correctamente");

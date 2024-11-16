@@ -17,8 +17,7 @@ import com.example.backend_integrador.dto.CategoryDto;
 import com.example.backend_integrador.service.CategoryService;
 
 import lombok.AllArgsConstructor;
-@CrossOrigin("*")
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/categories")
 @AllArgsConstructor
@@ -34,7 +33,7 @@ public class CategoryController {
     }
 
     // Get a category by ID REST API
-    @GetMapping("{categoryId}")
+    @GetMapping("/{categoryId}")
     public ResponseEntity<CategoryDto> getCategoryById(@PathVariable("categoryId") Long categoryId) {
         CategoryDto categoryDto = categoryService.getCategoryById(categoryId);
         return ResponseEntity.ok(categoryDto);
@@ -48,7 +47,7 @@ public class CategoryController {
     }
 
     // Update a category by ID REST API
-    @PutMapping("{categoryId}")
+    @PutMapping("/{categoryId}")
     public ResponseEntity<CategoryDto> updateCategory(@PathVariable("categoryId") Long categoryId,
                                                        @RequestBody CategoryDto updatedCategory){
         CategoryDto categoryDto = categoryService.updateCategory(categoryId, updatedCategory);
@@ -56,7 +55,7 @@ public class CategoryController {
     }
 
     // Delete a category by ID REST API
-    @DeleteMapping("{categoryId}")
+    @DeleteMapping("/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable("categoryId") Long categoryId){
         categoryService.deleteCategory(categoryId);
         return ResponseEntity.ok("Categoría eliminada correctamente");

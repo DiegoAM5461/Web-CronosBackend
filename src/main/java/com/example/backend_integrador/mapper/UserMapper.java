@@ -11,7 +11,8 @@ public class UserMapper {
             user.getUsername(),
             user.getPassword(),
             user.getUserEstado(),
-            user.getUserRol()
+            user.getUserRol(),
+            user.getEmployee().getEmployeeId()
         );
     }
 

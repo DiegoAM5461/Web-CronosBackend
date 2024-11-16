@@ -1,6 +1,5 @@
 package com.example.backend_integrador.dto;
 
-import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,6 @@ import com.example.backend_integrador.enums.EmployeeEstado;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 public class EmployeeDto {
     private Long employeeId;
     private String nombre;

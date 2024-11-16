@@ -55,24 +55,22 @@ public class ReservaServiceImpl implements ReservaService {
                         throw new IllegalStateException("El box no está disponible en la fecha solicitada.");
                 }
 
-                // Buscar el cliente por correo electrónico
-                Client client = clientRepository.findByEmail(reservaDto.getEmail()).orElse(null);
+                // Buscar el cliente por el clientId
+                Client client = clientRepository.findById(reservaDto.getClientId()).orElse(null);
 
-                // Si el cliente no existe, crearlo y guardarlo
-                if (client == null) {
-                        if (reservaDto.getPrimerNombre() == null || reservaDto.getPrimerApellido() == null
-                                        || reservaDto.getEmail() == null || reservaDto.getTelefono() == null) {
-                                throw new IllegalArgumentException(
-                                                "Para crear un cliente nuevo, se requieren todos los datos: nombre, apellido, email y teléfono.");
-                        }
+                // Si el cliente no existe, crearlo y verificar campos obligatorios
+                if (clientRepository.existsById(reservaDto.getClientId())) {
+                        client = clientRepository.findById(reservaDto.getClientId()).orElse(null);
+                } else {
+                        // Crear y guardar el nuevo cliente solo si no existe
+                        Client nuevoCliente = new Client();
+                        nuevoCliente.setClientId(reservaDto.getClientId()); // Si quieres asignar manualmente
+                        nuevoCliente.setPrimerNombre(reservaDto.getPrimerNombre());
+                        nuevoCliente.setPrimerApellido(reservaDto.getPrimerApellido());
+                        nuevoCliente.setEmail(reservaDto.getEmail());
+                        nuevoCliente.setTelefono(reservaDto.getTelefono());
 
-                        client = new Client();
-                        client.setPrimerNombre(reservaDto.getPrimerNombre());
-                        client.setPrimerApellido(reservaDto.getPrimerApellido());
-                        client.setEmail(reservaDto.getEmail());
-                        client.setTelefono(reservaDto.getTelefono());
-
-                        client = clientRepository.save(client); // Guardar el cliente
+                        client = clientRepository.save(nuevoCliente);
                 }
 
                 // Obtener el box correspondiente
@@ -197,5 +195,4 @@ public class ReservaServiceImpl implements ReservaService {
                                                 box.getBoxId(), null, null, null, null, box.getBoxCapacidad()))
                                 .toList();
         }
-
 }

@@ -20,7 +20,7 @@ import com.example.backend_integrador.service.BoxCronosService;
 import lombok.AllArgsConstructor;
 
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/box-cronos")
@@ -36,7 +36,7 @@ public class BoxCronosController {
     }
 
     // Get a boxCronos by ID REST API
-    @GetMapping("{boxId}")
+    @GetMapping("/{boxId}")
     public ResponseEntity<BoxCronosDto> getBoxCronosById(@PathVariable("boxId") Long boxId) {
         BoxCronosDto boxCronosDto = boxCronosService.getBoxCronosById(boxId);
         return ResponseEntity.ok(boxCronosDto);
@@ -50,7 +50,7 @@ public class BoxCronosController {
     }
 
     // Update a boxCronos by ID REST API
-    @PutMapping("{boxId}")
+    @PutMapping("/{boxId}")
     public ResponseEntity<BoxCronosDto> updateBoxCronos(@PathVariable("boxId") Long boxId,
                                                         @RequestBody BoxCronosDto updatedBoxCronos){
         BoxCronosDto boxCronosDto = boxCronosService.updateBoxCronos(boxId, updatedBoxCronos);
@@ -58,7 +58,7 @@ public class BoxCronosController {
     }
 
     // Delete a boxCronos by ID REST API
-    @DeleteMapping("{boxId}")
+    @DeleteMapping("/{boxId}")
     public ResponseEntity<String> deleteBoxCronos(@PathVariable("boxId") Long boxId){
         boxCronosService.deleteBoxCronos(boxId);
         return ResponseEntity.ok("BoxCronos eliminado correctamente");
