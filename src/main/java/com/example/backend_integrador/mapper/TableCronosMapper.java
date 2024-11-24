@@ -5,19 +5,17 @@ import com.example.backend_integrador.entity.TableCronos;
 
 public class TableCronosMapper {
 
-    public static TableCronosDto mapToTableCronosDto(TableCronos tableCronos){
+    public static TableCronosDto mapToTableCronosDto(TableCronos tableCronos) {
         return new TableCronosDto(
-            tableCronos.getTableCronosId(),
-            tableCronos.getTableQR(),
-            tableCronos.getTableNumero()
-        );
+                tableCronos.getTableCronosId(),
+                tableCronos.getTableNumero(),
+                tableCronos.getTableQR());
     }
 
-    public static TableCronos mapToTableCronos(TableCronosDto tableCronosDto){
+    public static TableCronos mapToTableCronos(TableCronosDto tableCronosDto) {
         return new TableCronos(
-            tableCronosDto.getTableCronosId(),
-            tableCronosDto.getTableNumero(),
-            tableCronosDto.getTableQR()
-        );
+                tableCronosDto.getTableCronosId(),
+                tableCronosDto.getTableNumero(),
+                tableCronosDto.getTableQR());
     }
 }

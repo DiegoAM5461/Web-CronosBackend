@@ -2,9 +2,7 @@ package com.example.backend_integrador.controller;
 
 import com.example.backend_integrador.dto.OrdersDetailsDto;
 import com.example.backend_integrador.service.OrdersDetailsService;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,29 +18,30 @@ public class OrdersDetailsController {
 
     @PostMapping
     public ResponseEntity<OrdersDetailsDto> createOrdersDetails(@RequestBody OrdersDetailsDto dto) {
-        OrdersDetailsDto savedDto = ordersDetailsService.createOrdersDetails(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedDto);
+        return ResponseEntity.ok(ordersDetailsService.createOrdersDetails(dto));
     }
 
     @GetMapping("/{ordersDetailsId}")
-    public ResponseEntity<OrdersDetailsDto> getOrdersDetailsById(@PathVariable("ordersDetailsId") Long ordersDetailsId) {
+    public ResponseEntity<OrdersDetailsDto> getOrdersDetailsById(@PathVariable Long ordersDetailsId) {
         return ResponseEntity.ok(ordersDetailsService.getOrdersDetailsById(ordersDetailsId));
     }
 
-    @GetMapping
-    public ResponseEntity<List<OrdersDetailsDto>> getAllOrdersDetails() {
-        return ResponseEntity.ok(ordersDetailsService.getAllOrdersDetails());
-    }
-
-    @PutMapping("/{ordersDetailsId}")
-    public ResponseEntity<OrdersDetailsDto> updateOrdersDetails(
-            @PathVariable("ordersDetailsId") Long ordersDetailsId, @RequestBody OrdersDetailsDto updatedDto) {
-        return ResponseEntity.ok(ordersDetailsService.updateOrdersDetails(ordersDetailsId, updatedDto));
+    @GetMapping("/orders/{ordersId}")
+    public ResponseEntity<List<OrdersDetailsDto>> getDetailsByOrder(@PathVariable Long ordersId) {
+        return ResponseEntity.ok(ordersDetailsService.getDetailsByOrder(ordersId));
     }
 
     @DeleteMapping("/{ordersDetailsId}")
-    public ResponseEntity<Void> deleteOrdersDetails(@PathVariable("ordersDetailsId") Long ordersDetailsId) {
+    public ResponseEntity<Void> deleteOrdersDetails(@PathVariable Long ordersDetailsId) {
         ordersDetailsService.deleteOrdersDetails(ordersDetailsId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{ordersId}/remove-product/{productId}")
+    public ResponseEntity<OrdersDetailsDto> removeProductFromOrder(
+            @PathVariable Long ordersId,
+            @PathVariable Long productId,
+            @RequestParam Integer quantityToRemove) {
+        return ResponseEntity.ok(ordersDetailsService.removeProductFromOrder(ordersId, productId, quantityToRemove));
     }
 }

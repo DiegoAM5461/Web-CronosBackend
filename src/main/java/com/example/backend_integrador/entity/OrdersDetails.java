@@ -9,23 +9,23 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "orders_details")
+@Table(name = "detalle_pedido")
 public class OrdersDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orders_details_id")
+    @Column(name = "id_detalle_pedido")
     private Long ordersDetailsId;
 
     @ManyToOne
-    @JoinColumn(name = "orders_id", nullable = false)
+    @JoinColumn(name = "id_pedido", nullable = false)
     private Orders orders;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "id_producto", nullable = false)
     private Product product;
 
-    @Column(name = "quantity", nullable = false)
+    @Column(name = "cantidad_detalle", nullable = false)
     private Integer quantity;
 
     @Column(name = "subtotal", nullable = false)

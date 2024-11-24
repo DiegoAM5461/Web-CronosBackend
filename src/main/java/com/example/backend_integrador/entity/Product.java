@@ -28,7 +28,7 @@ public class Product {
     @Column(name = "nombreProduct")
     private String nombre;
 
-    @Column(name = "descripcionProduct" , nullable = true)
+    @Column(name = "descripcionProduct", nullable = true)
     private String descripcion;
 
     @Column(name = "precioProduct")
@@ -37,7 +37,7 @@ public class Product {
     @Column(name = "disponibilidadProduct")
     private Boolean disponibilidad;
 
-    @Column(name = "stockProduct")
+    @Column(name = "stockProduct", nullable = false)
     private Integer stock;
 
     @Column(name = "direccionImg")
@@ -45,6 +45,6 @@ public class Product {
 
     // Establecer el mapeo para la fk
     @ManyToOne
-    @JoinColumn(name = "idCategory", nullable = false) 
+    @JoinColumn(name = "idCategory", nullable = false)
     private Category category;
 }
