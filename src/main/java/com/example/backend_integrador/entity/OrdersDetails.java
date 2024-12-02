@@ -1,5 +1,7 @@
 package com.example.backend_integrador.entity;
 
+import com.example.backend_integrador.enums.OrdersDetailsEstado;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,4 +32,8 @@ public class OrdersDetails {
 
     @Column(name = "subtotal", nullable = false)
     private Double subtotal;
+
+    @Enumerated(EnumType.STRING)
+    private OrdersDetailsEstado estado; // Estado del producto en el pedido
+
 }

@@ -20,5 +20,6 @@ public class HistorialReservaDto {
     private LocalTime horaCambio;
     private ReservaEstado estadoFinal;
     private Long reservaId;
-    private Long clientId;  // Nuevo campo
+    private Long clientId;  
+    private LocalDate fechaReserva; // Nuevo campo
 }

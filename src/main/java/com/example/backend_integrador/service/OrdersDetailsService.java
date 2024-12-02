@@ -17,4 +17,10 @@ public interface OrdersDetailsService {
     void deleteOrdersDetails(Long id);
 
     OrdersDetailsDto removeProductFromOrder(Long ordersId, Long productId, Integer quantityToRemove);
+
+    List<OrdersDetailsDto> getDetailsByBoxAndOrder(Long boxId, Long ordersId);
+
+    List<OrdersDetailsDto> getDetailsByTableAndOrder(Long tableCronosId, Long ordersId);
+
+
 }

@@ -19,4 +19,5 @@ public class ProductDto {
     private Integer stock;
     private String direccionImg;
     private Long idCategory;
+    private String nombreCategory; // Nombre de la categoría
 }

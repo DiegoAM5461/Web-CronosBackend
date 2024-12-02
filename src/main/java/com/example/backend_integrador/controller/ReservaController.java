@@ -3,6 +3,7 @@ package com.example.backend_integrador.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,8 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping("/api/reservas")
 public class ReservaController {
-
+    
+    @Autowired
     private ReservaService reservaService;
 
     // Create a new reserva REST API
@@ -75,6 +77,12 @@ public class ReservaController {
     public List<ReservaDto> getAvailableReservations(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaReserva) {
         return reservaService.getAvailableReservationsForDate(fechaReserva);
+    }
+
+    @PutMapping("/estado/actualizar")
+    public ResponseEntity<String> actualizarEstados() {
+        reservaService.actualizarReservas();
+        return ResponseEntity.ok("Reservas actualizadas correctamente.");
     }
 
 }
