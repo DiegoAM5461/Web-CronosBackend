@@ -11,8 +11,9 @@ public class HistorialReservaMapper {
                 historialReservas.getFechaCambio(),
                 historialReservas.getHoraCambio(),
                 historialReservas.getEstadoFinal(),
-                historialReservas.getReserva().getReservaId(),
-                historialReservas.getClientId() // Mapea el clientId
+                historialReservas.getReserva() != null ? historialReservas.getReserva().getReservaId() : null,
+                historialReservas.getClientId(),
+                historialReservas.getReserva() != null ? historialReservas.getReserva().getFechaReserva() : null
         );
     }
 
@@ -22,7 +23,6 @@ public class HistorialReservaMapper {
         historialReservas.setFechaCambio(dto.getFechaCambio());
         historialReservas.setHoraCambio(dto.getHoraCambio());
         historialReservas.setEstadoFinal(dto.getEstadoFinal());
-        // Asegúrate de asignar clientId si es necesario en la conversión
         historialReservas.setClientId(dto.getClientId());
         return historialReservas;
     }

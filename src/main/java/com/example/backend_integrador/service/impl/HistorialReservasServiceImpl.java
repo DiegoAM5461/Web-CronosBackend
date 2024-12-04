@@ -52,7 +52,8 @@ public class HistorialReservasServiceImpl implements HistorialReservasService {
     @Override
     public List<HistorialReservaDto> filtrarPorNombreCliente(String nombreCliente) {
         return historialReservasRepository.findAll().stream()
-                .filter(historial -> historial.getReserva().getClient().getPrimerNombre().equalsIgnoreCase(nombreCliente))
+                .filter(historial -> historial.getReserva().getClient().getPrimerNombre()
+                        .equalsIgnoreCase(nombreCliente))
                 .map(HistorialReservaMapper::toDto)
                 .collect(Collectors.toList());
     }

@@ -37,36 +37,36 @@ public class AuthService {
     // Método de login para autenticar al usuario y devolver el JWT
     public JwtResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-        
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
         User userDetails = userRepository.findByUsername(request.getUsername()).orElseThrow();
         String token = jwtService.getToken(userDetails);
-        
+
         return JwtResponse.builder()
-            .token(token)
-            .build();
+                .token(token)
+                .username(userDetails.getUsername()) // Incluye el nombre de usuario en la respuesta
+                .build();
     }
 
     // Método de registro para crear un nuevo usuario con su rol de empleado
     public JwtResponse register(RegisterRequest request) {
         Employee employee = employeeRepository.findById(request.getEmployee().getEmployeeId())
-            .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
 
         User user = User.builder()
-            .username(request.getUsername())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .userRol(UserRol.EMPLEADO) // Por defecto se establece como EMPLEADO; puede personalizarse
-            .userEstado(UserEstado.ACTIVO) // Estado inicial como ACTIVO
-            .employee(employee) // Asociar con el empleado existente
-            .build();
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .userRol(UserRol.EMPLEADO) // Por defecto se establece como EMPLEADO; puede personalizarse
+                .userEstado(UserEstado.ACTIVO) // Estado inicial como ACTIVO
+                .employee(employee) // Asociar con el empleado existente
+                .build();
 
         userRepository.save(user);
 
         String token = jwtService.getToken(user);
-        
+
         return JwtResponse.builder()
-            .token(token)
-            .build();
+                .token(token)
+                .build();
     }
 }

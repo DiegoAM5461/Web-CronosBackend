@@ -1,5 +1,9 @@
 package com.example.backend_integrador.entity;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.backend_integrador.enums.OrdersEstado;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +19,6 @@ public class Orders {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orders_id")
     private Long ordersId;
 
     @ManyToOne
@@ -27,9 +30,20 @@ public class Orders {
     private TableCronos tableCronos;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "orders_estado", nullable = false)
     private OrdersEstado ordersEstado;
 
-    @Column(name = "orders_total", nullable = false)
     private Double ordersTotal;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    @Builder.Default
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OrdersDetails> ordersDetails = new ArrayList<>();
+
 }

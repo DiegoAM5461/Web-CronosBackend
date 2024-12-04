@@ -20,5 +20,4 @@ public class RegisterRequest {
     UserEstado userEstado;
     UserRol userRol;
     Employee employee;
-    
 }

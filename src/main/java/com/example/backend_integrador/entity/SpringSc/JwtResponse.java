@@ -11,5 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class JwtResponse {
 
-    String token;
+    private String token;
+    private String username; // Nuevo campo para devolver el nombre de usuario
+
 }

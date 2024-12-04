@@ -1,11 +1,8 @@
 package com.example.backend_integrador.enums;
 
 public enum OrdersEstado {
-    PENDIENTE,
+    PENDIENTE,  
     CONFIRMADO,
-    EN_PREPARACION,
-    LISTO,
-    ENTREGADO,
     CANCELADO,
     COMPLETADO
 }
