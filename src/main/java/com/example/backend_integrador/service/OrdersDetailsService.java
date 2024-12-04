@@ -22,5 +22,4 @@ public interface OrdersDetailsService {
 
     List<OrdersDetailsDto> getDetailsByTableAndOrder(Long tableCronosId, Long ordersId);
 
-
 }

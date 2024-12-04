@@ -8,6 +8,8 @@ import com.example.backend_integrador.mapper.EmployeeMapper;
 import com.example.backend_integrador.repository.EmployeeRepository;
 import com.example.backend_integrador.service.EmployeeService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,39 +19,65 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeServiceImpl.class);
+
     private final EmployeeRepository employeeRepository;
 
     @Override
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
+        logger.info("Creando un nuevo empleado con email: {}", employeeDto.getEmail());
+
         if (employeeRepository.existsByEmail(employeeDto.getEmail())) {
+            logger.error("El email {} ya está en uso", employeeDto.getEmail());
             throw new IllegalArgumentException("El email ya está en uso.");
         }
 
-        // Mapea el DTO a la entidad Employee con estado INACTIVO por defecto
         Employee employee = EmployeeMapper.mapToEmployee(employeeDto);
+        employee.setEstadoEmployee(EmployeeEstado.INACTIVO); // Estado por defecto
+
         Employee savedEmployee = employeeRepository.save(employee);
 
+        logger.info("Empleado creado con éxito: {}", savedEmployee);
         return EmployeeMapper.mapToEmployeeDto(savedEmployee);
     }
 
     @Override
     public EmployeeDto getEmployeeById(Long employeeId) {
+        logger.info("Obteniendo empleado por ID: {}", employeeId);
+
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + employeeId));
+                .orElseThrow(() -> {
+                    logger.error("Empleado con ID {} no encontrado", employeeId);
+                    return new ResourceNotFoundException("Empleado no encontrado con ID: " + employeeId);
+                });
+
+        logger.debug("Empleado encontrado: {}", employee);
         return EmployeeMapper.mapToEmployeeDto(employee);
     }
 
     @Override
     public List<EmployeeDto> getAllEmployees() {
+        logger.info("Obteniendo todos los empleados");
+
         List<Employee> employees = employeeRepository.findAll();
-        return employees.stream().map(EmployeeMapper::mapToEmployeeDto).collect(Collectors.toList());
+
+        logger.debug("Cantidad de empleados encontrados: {}", employees.size());
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public EmployeeDto updateEmployee(Long employeeId, EmployeeDto employeeDto) {
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + employeeId));
+        logger.info("Actualizando empleado con ID: {}", employeeId);
 
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> {
+                    logger.error("Empleado con ID {} no encontrado para actualizar", employeeId);
+                    return new ResourceNotFoundException("Empleado no encontrado con ID: " + employeeId);
+                });
+
+        logger.debug("Datos actuales del empleado: {}", employee);
         employee.setNombre(employeeDto.getNombre());
         employee.setApellido(employeeDto.getApellido());
         employee.setEmail(employeeDto.getEmail());
@@ -58,21 +86,31 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setEstadoEmployee(employeeDto.getEstadoEmployee());
 
         Employee updatedEmployee = employeeRepository.save(employee);
+
+        logger.info("Empleado actualizado con éxito: {}", updatedEmployee);
         return EmployeeMapper.mapToEmployeeDto(updatedEmployee);
     }
 
     @Override
     public void deleteEmployee(Long employeeId) {
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + employeeId));
+        logger.info("Desactivando empleado con ID: {}", employeeId);
 
-        // Cambia el estado del empleado a INACTIVO en lugar de eliminarlo
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> {
+                    logger.error("Empleado con ID {} no encontrado para desactivar", employeeId);
+                    return new ResourceNotFoundException("Empleado no encontrado con ID: " + employeeId);
+                });
+
         employee.setEstadoEmployee(EmployeeEstado.INACTIVO);
         employeeRepository.save(employee);
+
+        logger.info("Empleado con ID {} desactivado con éxito", employeeId);
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        return employeeRepository.existsByEmail(email);
+        boolean exists = employeeRepository.existsByEmail(email);
+        logger.debug("Verificación de existencia de email {}: {}", email, exists);
+        return exists;
     }
 }

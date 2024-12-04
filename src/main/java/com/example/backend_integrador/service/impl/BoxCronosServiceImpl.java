@@ -1,6 +1,9 @@
 package com.example.backend_integrador.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,52 +20,79 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class BoxCronosServiceImpl implements BoxCronosService {
 
-    private BoxCronosRepository boxCronosRepository;
+    private static final Logger logger = LoggerFactory.getLogger(BoxCronosServiceImpl.class);
+
+    private final BoxCronosRepository boxCronosRepository;
 
     @Override
     public BoxCronosDto createBoxCronos(BoxCronosDto boxCronosDto) {
-        // Mapear el boxCronos
+        logger.info("Creando un nuevo BoxCronos");
+        logger.debug("Datos del BoxCronos a crear: {}", boxCronosDto);
+
         BoxCronos boxCronos = BoxCronosMapper.mapToBoxCronos(boxCronosDto);
         BoxCronos savedBoxCronos = boxCronosRepository.save(boxCronos);
 
-        // Retornar el boxCronos guardado como DTO
+        logger.info("BoxCronos creado con éxito: {}", savedBoxCronos);
         return BoxCronosMapper.mapToBoxCronosDto(savedBoxCronos);
     }
 
     @Override
     public BoxCronosDto getBoxCronosById(Long boxId) {
+        logger.info("Obteniendo BoxCronos por ID: {}", boxId);
+
         BoxCronos boxCronos = boxCronosRepository.findById(boxId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "El boxCronos con el id_box: " + boxId + " no existe"));
+                .orElseThrow(() -> {
+                    logger.error("BoxCronos con ID {} no encontrado", boxId);
+                    return new ResourceNotFoundException("El BoxCronos con el ID: " + boxId + " no existe");
+                });
+
+        logger.debug("BoxCronos encontrado: {}", boxCronos);
         return BoxCronosMapper.mapToBoxCronosDto(boxCronos);
     }
 
     @Override
     public List<BoxCronosDto> getAllBoxCronos() {
+        logger.info("Obteniendo todos los BoxCronos");
+
         List<BoxCronos> boxCronosList = boxCronosRepository.findAll();
-        return boxCronosList.stream().map(BoxCronosMapper::mapToBoxCronosDto)
+
+        logger.debug("Cantidad de BoxCronos encontrados: {}", boxCronosList.size());
+        return boxCronosList.stream()
+                .map(BoxCronosMapper::mapToBoxCronosDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public BoxCronosDto updateBoxCronos(Long boxId, BoxCronosDto updatedBoxCronos) {
-        // Buscar el boxCronos existente
-        BoxCronos boxCronos = boxCronosRepository.findById(boxId).orElseThrow(
-            () -> new ResourceNotFoundException("El boxCronos con id_box: " + boxId + " no existe")
-        );
+        logger.info("Actualizando BoxCronos con ID: {}", boxId);
 
-        // Actualizar los atributos del boxCronos
+        BoxCronos boxCronos = boxCronosRepository.findById(boxId)
+                .orElseThrow(() -> {
+                    logger.error("BoxCronos con ID {} no encontrado para actualizar", boxId);
+                    return new ResourceNotFoundException("El BoxCronos con el ID: " + boxId + " no existe");
+                });
+
+        logger.debug("Datos actuales del BoxCronos: {}", boxCronos);
         boxCronos.setBoxNumero(updatedBoxCronos.getBoxNumero());
         boxCronos.setBoxCapacidad(updatedBoxCronos.getBoxCapacidad());
 
         BoxCronos updatedBoxCronosObj = boxCronosRepository.save(boxCronos);
+        logger.info("BoxCronos actualizado con éxito: {}", updatedBoxCronosObj);
+
         return BoxCronosMapper.mapToBoxCronosDto(updatedBoxCronosObj);
     }
 
     @Override
     public void deleteBoxCronos(Long boxId) {
-        BoxCronos boxCronos = boxCronosRepository.findById(boxId).orElseThrow(
-                () -> new ResourceNotFoundException("El boxCronos con el id_box: " + boxId + " no existe"));
+        logger.info("Eliminando BoxCronos con ID: {}", boxId);
+
+        BoxCronos boxCronos = boxCronosRepository.findById(boxId)
+                .orElseThrow(() -> {
+                    logger.error("BoxCronos con ID {} no encontrado para eliminar", boxId);
+                    return new ResourceNotFoundException("El BoxCronos con el ID: " + boxId + " no existe");
+                });
+
         boxCronosRepository.delete(boxCronos);
+        logger.info("BoxCronos con ID {} eliminado con éxito", boxId);
     }
 }
