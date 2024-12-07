@@ -23,7 +23,6 @@ import com.example.backend_integrador.service.ProductService;
 import lombok.AllArgsConstructor;
 
 @CrossOrigin(origins = {
-    "http://localhost:3000", 
     "https://frontend-cronos.vercel.app"
 })
 @AllArgsConstructor

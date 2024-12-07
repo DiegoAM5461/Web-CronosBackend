@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @CrossOrigin(origins = {
-    "http://localhost:3000", 
     "https://frontend-cronos.vercel.app"
 })
 @AllArgsConstructor
