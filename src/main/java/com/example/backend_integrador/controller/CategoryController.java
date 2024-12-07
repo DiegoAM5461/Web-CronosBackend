@@ -21,7 +21,10 @@ import com.example.backend_integrador.service.CategoryService;
 
 import lombok.AllArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "https://frontend-cronos.vercel.app"
+})
 @RestController
 @RequestMapping("/api/categories")
 @AllArgsConstructor

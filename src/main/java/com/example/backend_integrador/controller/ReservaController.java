@@ -26,7 +26,10 @@ import com.example.backend_integrador.service.ReservaService;
 
 import lombok.AllArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "https://frontend-cronos.vercel.app"
+})
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/reservas")

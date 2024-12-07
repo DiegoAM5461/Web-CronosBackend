@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "https://frontend-cronos.vercel.app"
+})
 @RestController
 @RequestMapping("/api/orders")
 public class OrdersController {
